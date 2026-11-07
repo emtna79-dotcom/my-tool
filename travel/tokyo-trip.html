@@ -1,0 +1,376 @@
+<title>도쿄 가족여행 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: indigo header band, sticky day nav, then a single reading column of day timelines → local notes → budget → checklist */
+:root {
+  --paper: #f3f5f9;
+  --surface: #ffffff;
+  --ink: #1b2333;
+  --muted: #5b6577;
+  --line: #dce1ea;
+  --band: #1f2f5c;
+  --on-band: #f3f5f9;
+  --on-band-muted: #b9c4dd;
+  --ginkgo: #d99e00;
+  --ginkgo-soft: #fbf0c6;
+  --ai: #2a4582;
+  --ai-soft: #e5ebf6;
+  --warn: #9c4d17;
+  --warn-soft: #fae7d8;
+  --dusk: #6a4c93;
+  --font-display: "Gowun Batang", "Nanum Myeongjo", "AppleMyungjo", serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141c; --surface: #171d28; --ink: #e7ebf2; --muted: #9ba5b7; --line: #2a3242;
+    --band: #172347; --on-band: #eef1f7; --on-band-muted: #9fadcc;
+    --ginkgo: #f0c133; --ginkgo-soft: #3a3014; --ai: #93abe2; --ai-soft: #1e2841;
+    --warn: #f0a46f; --warn-soft: #3b2415; --dusk: #b79be0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141c; --surface: #171d28; --ink: #e7ebf2; --muted: #9ba5b7; --line: #2a3242;
+  --band: #172347; --on-band: #eef1f7; --on-band-muted: #9fadcc;
+  --ginkgo: #f0c133; --ginkgo-soft: #3a3014; --ai: #93abe2; --ai-soft: #1e2841;
+  --warn: #f0a46f; --warn-soft: #3b2415; --dusk: #b79be0;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper);
+}
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.3; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Header */
+header.band { background: var(--band); color: var(--on-band); }
+header .wrap { padding-block: 40px 28px; display: grid; gap: 18px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; color: var(--on-band-muted); text-transform: uppercase; }
+header h1 { font-size: clamp(28px, 6vw, 40px); font-weight: 700; }
+header h1 .leaf { color: var(--ginkgo); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 20px; margin: 0; }
+.facts div { min-width: 0; }
+.facts dt { font-size: 12px; color: var(--on-band-muted); letter-spacing: .06em; }
+.facts dd { margin: 0; font-weight: 500; }
+
+/* Sticky nav */
+nav.days {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--paper); border-bottom: 1px solid var(--line);
+}
+nav.days .wrap { display: flex; gap: 6px; overflow-x: auto; padding-block: 10px; scrollbar-width: none; }
+nav.days a {
+  flex: none; text-decoration: none; color: var(--ink); font-size: 14px; font-weight: 500;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface);
+}
+nav.days a:hover { border-color: var(--ai); color: var(--ai); }
+a:focus-visible, input:focus-visible, button:focus-visible { outline: 2px solid var(--ginkgo); outline-offset: 2px; }
+
+main .wrap { display: grid; gap: 48px; padding-block: 28px 64px; }
+section { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 64px); display: grid; gap: 16px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sec-head h2 { font-size: 24px; }
+.sec-head .sub { color: var(--muted); font-size: 14px; }
+
+.notice {
+  background: var(--warn-soft); color: var(--ink); border-radius: 10px;
+  padding: 12px 14px; font-size: 14px;
+}
+.chk {
+  display: inline-block; font-size: 11.5px; font-weight: 600; letter-spacing: .02em;
+  color: var(--warn); background: var(--warn-soft); border-radius: 4px; padding: 0 6px;
+  line-height: 1.7; vertical-align: 1px; white-space: nowrap;
+}
+
+/* Timeline */
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; }
+.timeline li {
+  display: grid; grid-template-columns: 4.6rem 1fr; gap: 0 14px; position: relative;
+  padding-bottom: 20px;
+}
+.timeline li::before {
+  content: ""; position: absolute; left: calc(4.6rem + 6px); top: 10px; bottom: -4px;
+  width: 2px; background: var(--line);
+}
+.timeline li:last-child::before { display: none; }
+.t { font-size: 13px; color: var(--muted); padding-top: 2px; text-align: right; }
+.stop { position: relative; padding-left: 22px; min-width: 0; display: grid; gap: 2px; }
+.stop::before {
+  content: ""; position: absolute; left: 1px; top: 7px; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--surface); border: 3px solid var(--ai);
+}
+.stop h3 { font-family: var(--font-body); font-size: 16px; font-weight: 600; }
+.stop p { margin: 0; color: var(--muted); font-size: 14px; }
+.alt { font-size: 13.5px; color: var(--ink); }
+.alt b { font-weight: 600; color: var(--ai); margin-right: 4px; }
+li.move .stop::before { border-color: var(--muted); }
+li.move .stop h3 { font-weight: 500; color: var(--muted); }
+li.opt .stop::before { border-style: dashed; }
+li.sunset .t { color: var(--dusk); }
+li.sunset .stop::before { background: var(--dusk); border-color: var(--dusk); width: 8px; height: 8px; left: 3px; top: 9px; }
+li.sunset .stop p { color: var(--dusk); font-size: 13px; }
+li.sunset { padding-bottom: 14px; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 16px 4px; display: grid; gap: 16px; }
+.day-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.day-head .d { font-family: var(--font-mono); font-size: 13px; color: var(--ai); background: var(--ai-soft); padding: 1px 8px; border-radius: 4px; }
+.day-head h2 { font-size: 22px; }
+
+/* Local notes */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 0; }
+.notes div { padding: 12px 0; border-top: 2px solid var(--ginkgo); min-width: 0; }
+.notes dt { font-weight: 600; font-size: 14px; }
+.notes dd { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+/* Budget */
+.rate { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+.rate input {
+  width: 5.5em; font: inherit; font-family: var(--font-mono); color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; text-align: right;
+}
+.budget { list-style: none; margin: 0; padding: 0; display: grid; }
+.budget li { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.budget .name { font-weight: 500; }
+.budget .krw { text-align: right; font-weight: 600; }
+.budget .basis { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.budget .bar { grid-column: 1 / -1; height: 6px; background: var(--ai-soft); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.budget .bar span { display: block; height: 100%; background: var(--ai); border-radius: 3px; }
+.total { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.total div { background: var(--band); color: var(--on-band); border-radius: 12px; padding: 14px 16px; }
+.total small { display: block; font-size: 12px; color: var(--on-band-muted); letter-spacing: .06em; }
+.total strong { font-family: var(--font-display); font-size: 26px; }
+
+/* Checklist */
+.progress { font-size: 14px; color: var(--muted); }
+.groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px 24px; }
+.group h3 { font-family: var(--font-body); font-size: 13px; font-weight: 600; letter-spacing: .08em; color: var(--ai); margin-bottom: 6px; }
+.group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.group label { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; padding: 6px 0; cursor: pointer; }
+.group input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--ai); }
+.group .item { min-width: 0; }
+.group .memo { display: block; font-size: 13px; color: var(--muted); }
+.group input:checked + .item > span:first-child { text-decoration: line-through; color: var(--muted); }
+button.reset {
+  font: inherit; font-size: 13px; color: var(--muted); background: none; border: 1px solid var(--line);
+  border-radius: 6px; padding: 3px 10px; cursor: pointer;
+}
+
+/* Todo */
+.todo { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
+.todo li::marker { font-family: var(--font-mono); color: var(--ginkgo); font-weight: 500; }
+
+footer { color: var(--muted); font-size: 13px; }
+
+@media (max-width: 420px) {
+  .timeline li { grid-template-columns: 3.6rem 1fr; gap: 0 10px; }
+  .timeline li::before { left: calc(3.6rem + 4px); }
+  .day { padding-inline: 12px; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<header class="band">
+  <div class="wrap">
+    <div class="eyebrow">Tokyo · 2박 3일</div>
+    <h1>도쿄 가족여행 <span class="leaf">11.30 – 12.2</span></h1>
+    <dl class="facts">
+      <div><dt>기간</dt><dd>2026.11.30(월) – 12.2(수)</dd></div>
+      <div><dt>인원</dt><dd>3명 · 보호자 1, 딸 2 (중3·고3)</dd></div>
+      <div><dt>숙소</dt><dd>도쿄역·긴자 쪽, 역 근처</dd></div>
+      <div><dt>출발 공항</dt><dd>김해 / 인천 검토 중</dd></div>
+    </dl>
+  </div>
+</header>
+
+<nav class="days" aria-label="바로가기">
+  <div class="wrap">
+    <a href="#day1">11/30 월</a>
+    <a href="#day2">12/1 화</a>
+    <a href="#day3">12/2 수</a>
+    <a href="#local">현지 사정</a>
+    <a href="#budget">경비</a>
+    <a href="#packing">준비물</a>
+    <a href="#todo">할 일</a>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+    <p class="notice">요금과 운영시간은 모두 예상치예요. <span class="chk">확인 필요</span> 표시가 붙은 건 예약 전에 꼭 확인하세요.</p>
+
+    <section id="day1" class="day">
+      <div class="day-head"><span class="d">DAY 1 · 11/30 월</span><h2>도착 · 도쿄역과 긴자</h2></div>
+      <ol class="timeline">
+        <li class="move"><span class="t mono">오후</span><div class="stop"><h3>공항 → 숙소 체크인</h3><p>하네다 30~40분, 나리타 1시간 남짓</p></div></li>
+        <li><span class="t mono">16:00</span><div class="stop"><h3>도쿄역 캐릭터 스트리트</h3><p>포켓몬·지브리·산리오 가게</p><div class="alt"><b>대안</b>비 오면 지하 그란스타</div></div></li>
+        <li class="sunset"><span class="t mono">16:30</span><div class="stop"><p>이쯤 어두워져요</p></div></li>
+        <li><span class="t mono">17:30</span><div class="stop"><h3>마루노우치 일루미네이션</h3><p>점등 기간·시간 <span class="chk">확인 필요</span></p></div></li>
+        <li><span class="t mono">19:00</span><div class="stop"><h3>긴자 저녁·산책</h3><p>숙소까지 걸어서 복귀</p><div class="alt"><b>대안</b>이토야·무인양품 긴자 <span class="chk">확인 필요</span></div></div></li>
+      </ol>
+    </section>
+
+    <section id="day2" class="day">
+      <div class="day-head"><span class="d">DAY 2 · 12/1 화</span><h2>은행나무길 · 하라주쿠 · 시부야</h2></div>
+      <ol class="timeline">
+        <li><span class="t mono">10:00</span><div class="stop"><h3>메이지진구 가이엔 은행나무길</h3><p>단풍 절정~끝물, 출발 전 확인</p><div class="alt"><b>대안</b>잎이 졌으면 메이지 신궁</div></div></li>
+        <li><span class="t mono">12:00</span><div class="stop"><h3>하라주쿠 다케시타 거리·오모테산도</h3><p>크레페, 옷가게, 드럭스토어</p><div class="alt"><b>대안</b>캣스트리트</div></div></li>
+        <li><span class="t mono">15:30</span><div class="stop"><h3>시부야 스카이</h3><p>일몰 시간대 예약 필수, 요금 <span class="chk">확인 필요</span></p><div class="alt"><b>대안</b>매진이면 시부야 파르코 / 오다이바</div></div></li>
+        <li class="sunset"><span class="t mono">16:30</span><div class="stop"><p>전망대에서 해 지는 것 보기</p></div></li>
+      </ol>
+    </section>
+
+    <section id="day3" class="day">
+      <div class="day-head"><span class="d">DAY 3 · 12/2 수</span><h2>쓰키지 · 아사쿠사 · 귀국</h2></div>
+      <ol class="timeline">
+        <li><span class="t mono">08:00</span><div class="stop"><h3>쓰키지 장외시장 아침</h3><p>숙소에서 도보, 수요일 휴무 가게 <span class="chk">확인 필요</span></p></div></li>
+        <li class="move"><span class="t mono">09:30</span><div class="stop"><h3>체크아웃 → 아사쿠사 이동</h3><p>짐은 아사쿠사역 코인로커</p></div></li>
+        <li><span class="t mono">10:30</span><div class="stop"><h3>센소지·나카미세 거리</h3><p>도쿄에서 가장 오래된 절</p><div class="alt"><b>대안</b>팀랩 플래닛 (예약제) <span class="chk">확인 필요</span></div></div></li>
+        <li class="opt"><span class="t mono">12:00</span><div class="stop"><h3>스카이트리 소라마치</h3><p>오후 늦은 비행기일 때만. 오전 비행기면 생략</p></div></li>
+        <li class="move"><span class="t mono">출발−3h</span><div class="stop"><h3>공항 이동</h3><p>아사쿠사역에서 하네다·나리타 직행</p></div></li>
+      </ol>
+    </section>
+
+    <section id="local">
+      <div class="sec-head"><h2>12월 초 도쿄 현지 사정</h2></div>
+      <dl class="notes">
+        <div><dt>해 지는 시간</dt><dd>4시 반쯤 어두워져요. 야외는 오전~3시, 저녁은 일루미네이션·전망대.</dd></div>
+        <div><dt>날씨</dt><dd>아침 5°C 안팎, 낮 12~13°C, 건조함.</dd></div>
+        <div><dt>평일 일정</dt><dd>월~수라 덜 붐벼요. 월요일 휴관 시설이 많아요.</dd></div>
+        <div><dt>단풍</dt><dd>은행나무 절정이거나 지는 시기. 출발 전 단풍 소식 확인.</dd></div>
+        <div><dt>숙소</dt><dd>일본 호텔 3인실은 드물고 좁아요. 트리플룸·캐리어 공간 확인.</dd></div>
+        <div><dt>공항 동선</dt><dd>아사쿠사역에서 하네다·나리타 모두 직행 열차.</dd></div>
+        <div><dt>면세</dt><dd>2026년 11월부터 출국 시 환급 방식으로 바뀐다고 알려짐 <span class="chk">확인 필요</span>. 여권·영수증 챙기기.</dd></div>
+      </dl>
+    </section>
+
+    <section id="budget">
+      <div class="sec-head"><h2>예상 경비</h2><span class="sub">3명 기준</span></div>
+      <label class="rate" for="rate">환율 100엔 = <input id="rate" class="mono" type="number" inputmode="decimal" min="1" step="1" value="930"> 원 <span class="chk">확인 필요</span></label>
+      <ul class="budget" id="budget-list">
+        <li data-krw="1200000"><span class="name">항공권 왕복</span><span class="krw mono">120만 원</span><span class="basis">₩1,200,000 · 1인 40만 원 안팎, 출발 공항에 따라 다름 <span class="chk">확인 필요</span></span><span class="bar"><span style="width:100%"></span></span></li>
+        <li data-yen="60000"><span class="name">숙소 2박</span><span class="krw mono">56만 원</span><span class="basis">¥60,000 · 3인실 1박 ¥30,000 <span class="chk">확인 필요</span></span><span class="bar"><span style="width:46.5%"></span></span></li>
+        <li data-yen="6000"><span class="name">공항 왕복 교통</span><span class="krw mono">6만 원</span><span class="basis">¥6,000 · 하네다 기준, 나리타면 더 듦 <span class="chk">확인 필요</span></span><span class="bar"><span style="width:4.7%"></span></span></li>
+        <li data-yen="3600"><span class="name">시내 교통</span><span class="krw mono">3만 원</span><span class="basis">¥3,600 · 도쿄 서브웨이 티켓 48시간권 × 3 <span class="chk">확인 필요</span></span><span class="bar"><span style="width:2.8%"></span></span></li>
+        <li data-yen="45000"><span class="name">식비</span><span class="krw mono">42만 원</span><span class="basis">¥45,000 · 1인 하루 ¥5,000 × 3명 × 3일</span><span class="bar"><span style="width:34.9%"></span></span></li>
+        <li data-yen="9000"><span class="name">입장료</span><span class="krw mono">8만 원</span><span class="basis">¥9,000 · 시부야 스카이 3명 <span class="chk">확인 필요</span></span><span class="bar"><span style="width:7%"></span></span></li>
+        <li data-yen="45000"><span class="name">쇼핑·기념품</span><span class="krw mono">42만 원</span><span class="basis">¥45,000 · 1인 ¥15,000</span><span class="bar"><span style="width:34.9%"></span></span></li>
+        <li data-krw="100000"><span class="name">eSIM·여행자 보험</span><span class="krw mono">10만 원</span><span class="basis">₩100,000 · 3명 <span class="chk">확인 필요</span></span><span class="bar"><span style="width:8.3%"></span></span></li>
+      </ul>
+      <div class="total">
+        <div><small>합계</small><strong id="sum">약 287만 원</strong></div>
+        <div><small>1인당</small><strong id="per">약 96만 원</strong></div>
+      </div>
+    </section>
+
+    <section id="packing">
+      <div class="sec-head"><h2>준비물</h2><span class="progress"><span id="done" class="mono">0</span> / <span id="all" class="mono">0</span> 챙김 <button class="reset" id="reset" type="button">모두 해제</button></span></div>
+      <div class="groups" id="groups">
+        <div class="group"><h3>서류</h3><ul>
+          <li><label><input type="checkbox" id="p-passport"><span class="item"><span>여권 3개</span><span class="memo">유효기간 확인</span></span></label></li>
+          <li><label><input type="checkbox" id="p-ticket"><span class="item"><span>항공권 e티켓, 숙소 예약 확인서</span></span></label></li>
+          <li><label><input type="checkbox" id="p-vjw"><span class="item"><span>Visit Japan Web 등록</span><span class="memo">3명 모두 입국·세관 QR</span></span></label></li>
+          <li><label><input type="checkbox" id="p-insure"><span class="item"><span>여행자 보험</span></span></label></li>
+          <li><label><input type="checkbox" id="p-family"><span class="item"><span>영문 가족관계증명서</span><span class="memo">보호자 1명 + 미성년 자녀 대비 <span class="chk">확인 필요</span></span></span></label></li>
+        </ul></div>
+        <div class="group"><h3>돈·결제</h3><ul>
+          <li><label><input type="checkbox" id="p-cash"><span class="item"><span>엔화 현금, 해외 결제 카드</span><span class="memo">현금만 받는 가게 있음</span></span></label></li>
+          <li><label><input type="checkbox" id="p-ic"><span class="item"><span>교통카드</span><span class="memo">모바일 Suica 또는 서브웨이 티켓</span></span></label></li>
+          <li><label><input type="checkbox" id="p-coin"><span class="item"><span>동전 지갑</span></span></label></li>
+        </ul></div>
+        <div class="group"><h3>전자기기</h3><ul>
+          <li><label><input type="checkbox" id="p-adapter"><span class="item"><span>돼지코 어댑터 2~3개</span><span class="memo">일본은 11자 A타입</span></span></label></li>
+          <li><label><input type="checkbox" id="p-tap"><span class="item"><span>멀티탭, 충전기·케이블</span><span class="memo">호텔 콘센트 적음</span></span></label></li>
+          <li><label><input type="checkbox" id="p-battery"><span class="item"><span>보조배터리</span><span class="memo">기내 반입만 가능</span></span></label></li>
+          <li><label><input type="checkbox" id="p-esim"><span class="item"><span>eSIM 또는 포켓 와이파이</span></span></label></li>
+        </ul></div>
+        <div class="group"><h3>옷·신발</h3><ul>
+          <li><label><input type="checkbox" id="p-coat"><span class="item"><span>얇은 패딩 또는 코트, 발열 내의·니트</span><span class="memo">겹쳐 입기</span></span></label></li>
+          <li><label><input type="checkbox" id="p-shoes"><span class="item"><span>편한 운동화</span><span class="memo">하루 2만 보 가까이</span></span></label></li>
+          <li><label><input type="checkbox" id="p-scarf"><span class="item"><span>목도리·장갑, 접이식 우산</span></span></label></li>
+        </ul></div>
+        <div class="group"><h3>생활용품</h3><ul>
+          <li><label><input type="checkbox" id="p-meds"><span class="item"><span>상비약</span><span class="memo">소화제, 진통제, 밴드</span></span></label></li>
+          <li><label><input type="checkbox" id="p-warm"><span class="item"><span>핫팩, 립밤·보습크림</span><span class="memo">건조함</span></span></label></li>
+          <li><label><input type="checkbox" id="p-cloth"><span class="item"><span>손수건, 장바구니</span><span class="memo">핸드 드라이어 없는 곳 많음, 비닐봉투 유료</span></span></label></li>
+        </ul></div>
+      </div>
+    </section>
+
+    <section id="todo">
+      <div class="sec-head"><h2>다음에 할 일</h2></div>
+      <ol class="todo">
+        <li>12/2(수) 귀국편 시간 정하기 → 마지막 날 소라마치 넣을지 결정</li>
+        <li>도쿄역·긴자 트리플룸 2박 가격 확인하고 경비 업데이트</li>
+        <li>시부야 스카이(12/1 오후 3시 반쯤) 예약 오픈일 확인</li>
+      </ol>
+    </section>
+
+    <footer>체크 표시는 이 기기의 브라우저에만 저장돼요.</footer>
+  </div>
+</main>
+
+<script>
+(function () {
+  // 경비: 환율을 바꾸면 원화 금액·합계 다시 계산
+  var rateIn = document.getElementById('rate');
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#budget-list li'));
+  function man(n) { return Math.round(n / 10000).toLocaleString('ko-KR') + '만 원'; }
+  function recalc() {
+    var rate = parseFloat(rateIn.value);
+    if (!(rate > 0)) return;
+    var vals = rows.map(function (li) {
+      return li.dataset.krw ? +li.dataset.krw : +li.dataset.yen * rate / 100;
+    });
+    var max = Math.max.apply(null, vals), sum = 0;
+    rows.forEach(function (li, i) {
+      sum += vals[i];
+      li.querySelector('.krw').textContent = man(vals[i]);
+      li.querySelector('.bar span').style.width = (vals[i] / max * 100).toFixed(1) + '%';
+    });
+    document.getElementById('sum').textContent = '약 ' + man(sum);
+    document.getElementById('per').textContent = '약 ' + man(sum / 3);
+  }
+  rateIn.addEventListener('input', recalc);
+
+  // 준비물 체크리스트: 이 브라우저에만 저장
+  var KEY = 'tokyo-trip-packing';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('#groups input[type=checkbox]'));
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  boxes.forEach(function (b) { if (saved[b.id]) b.checked = true; });
+  function update() {
+    var state = {}, n = 0;
+    boxes.forEach(function (b) { if (b.checked) { state[b.id] = 1; n++; } });
+    document.getElementById('done').textContent = n;
+    document.getElementById('all').textContent = boxes.length;
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  boxes.forEach(function (b) { b.addEventListener('change', update); });
+  document.getElementById('reset').addEventListener('click', function () {
+    boxes.forEach(function (b) { b.checked = false; });
+    update();
+  });
+  update();
+})();
+</script>
