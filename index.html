@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b91c1c">
+<title>구급장비 현물조사</title>
+<style>
+  :root {
+    --red: #b91c1c; --red-soft: #fee2e2;
+    --amber: #b45309; --amber-soft: #fef3c7;
+    --green: #15803d; --green-soft: #dcfce7;
+    --ink: #1f2937; --muted: #6b7280; --line: #e5e7eb; --bg: #f3f4f6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+         background: var(--bg); color: var(--ink); font-size: 16px; }
+  header { position: sticky; top: 0; z-index: 10; background: var(--red); color: #fff;
+           padding: 12px 16px 10px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  header h1 { margin: 0; font-size: 18px; }
+  .progress-text { font-size: 14px; margin-top: 4px; opacity: .95; }
+  .bar { height: 6px; background: rgba(255,255,255,.3); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .bar > div { height: 100%; background: #fff; width: 0; transition: width .2s; }
+  .filters { display: flex; gap: 6px; overflow-x: auto; padding: 10px 12px; background: #fff;
+             border-bottom: 1px solid var(--line); position: sticky; top: 74px; z-index: 9; }
+  .filters button { flex: none; border: 1px solid var(--line); background: #fff; border-radius: 999px;
+                    padding: 6px 12px; font-size: 14px; color: var(--ink); }
+  .filters button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .filters .n { font-weight: 700; margin-left: 2px; }
+  main { padding: 12px; padding-bottom: 110px; max-width: 640px; margin: 0 auto; }
+  .card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px;
+          border: 2px solid transparent; }
+  .card.done { border-color: var(--green); }
+  .card-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .name { font-weight: 700; font-size: 17px; }
+  .spec { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .badge { font-size: 12px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .b-red { background: var(--red-soft); color: var(--red); }
+  .b-amber { background: var(--amber-soft); color: var(--amber); }
+  .b-green { background: var(--green-soft); color: var(--green); }
+  .row { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .label { font-size: 13px; color: var(--muted); width: 64px; flex: none; }
+  .qty { display: flex; align-items: center; gap: 6px; }
+  .qty button { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line);
+                background: #fff; font-size: 20px; }
+  .qty input { width: 56px; height: 40px; text-align: center; font-size: 18px; border: 1px solid var(--line);
+               border-radius: 10px; }
+  .qty input.mismatch { border-color: var(--red); color: var(--red); font-weight: 700; background: var(--red-soft); }
+  .book { font-size: 13px; color: var(--muted); }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { border: 0; background: #fff; padding: 9px 14px; font-size: 15px; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button.on[data-v="정상"] { background: var(--green); color: #fff; }
+  .seg button.on[data-v="고장"] { background: var(--amber); color: #fff; }
+  .seg button.on[data-v="폐기"] { background: var(--red); color: #fff; }
+  input[type=date], input.text { height: 40px; border: 1px solid var(--line); border-radius: 10px;
+                                 padding: 0 10px; font-size: 15px; flex: 1; min-width: 0; background: #fff; }
+  .check { flex: none; border: 0; border-radius: 10px; padding: 10px 14px; font-size: 15px; font-weight: 700;
+           background: var(--bg); color: var(--ink); }
+  .card.done .check { background: var(--green); color: #fff; }
+  .group-h { font-size: 14px; font-weight: 700; color: var(--red); margin: 18px 4px 8px; }
+  .group-h:first-child { margin-top: 4px; }
+  .func { font-size: 12px; color: var(--muted); }
+  .note { margin-top: 10px; font-size: 13px; background: var(--amber-soft); color: #78350f;
+          border-radius: 8px; padding: 8px 10px; }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--line);
+           padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 8px; z-index: 10; }
+  footer button { flex: 1; height: 46px; border-radius: 10px; border: 0; font-size: 15px; font-weight: 700; }
+  .primary { background: var(--red); color: #fff; }
+  .secondary { background: var(--ink); color: #fff; }
+  .ghost { background: var(--bg); color: var(--ink); flex: 0 0 72px !important; }
+  .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: rgba(0,0,0,.85);
+           color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 14px; opacity: 0;
+           transition: opacity .2s; pointer-events: none; z-index: 20;
+           width: max-content; max-width: calc(100% - 32px); text-align: center; word-break: keep-all; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>구급장비 현물조사</h1>
+  <div class="progress-text" id="progressText"></div>
+  <div class="bar"><div id="progressBar"></div></div>
+</header>
+
+<nav class="filters" id="filters"></nav>
+<main id="list"></main>
+
+<footer>
+  <button class="ghost" id="resetBtn">초기화</button>
+  <button class="secondary" id="csvBtn">CSV 다운로드</button>
+  <button class="primary" id="copyBtn">표로 복사</button>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   장비 목록 — 2026년도 구급장비 관리현황('26.12.31. 기준, 65종 450점)
+   group: 용도별 / func: 기능별 / name: 품명 / book: 장부 수량('26.12.31.) / prev: '24.12.30. 수량
+   spec: 비고(모델·증감 사유) / check: 제출 전 확인 메모 / loc: 보관 위치(비어 있으면 현장에서 입력)
+   새 품목은 맨 아래에 한 줄 추가하면 됩니다.
+   ============================================================ */
+const EQUIPMENT = [
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "시뮬레이터(성인)", "book": 2, "prev": 2, "spec": "SimMan 3G, Apollo", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "디브리핑시스템", "book": 1, "prev": 1, "spec": "SimView", "check": "장비시스템 미등록", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "환자용 침대", "book": 2, "prev": 2, "spec": "", "check": "장비시스템 미등록", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "시뮬레이터(정맥)", "book": 1, "prev": 1, "spec": "Virtual IV", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "시뮬레이터(소아)", "book": 1, "prev": 1, "spec": "SimJunior", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "시뮬레이터(신생아)", "book": 1, "prev": 1, "spec": "SimNewB", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "전문 실습마네킨", "book": 15, "prev": 12, "spec": "’25.11. 보강", "check": "현물표 9(RA)+’25 3=12 / 장비시스템 14 / 물품대장 13", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "CPR 성인기본(전신)", "book": 5, "prev": 5, "spec": "QCPR", "check": "현물표 6 / 장비시스템 미등록(물품대장 8)", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "CPR 성인기본(반신)", "book": 47, "prev": 36, "spec": "’25.9.·’25.11.·’26.6. 보강 / ’25.6.24. 불용", "check": "현물표 30+보강 23=53 / 장비시스템 불용 12 미처리 / 불용예정 16 별도", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "CPR 소아", "book": 8, "prev": 8, "spec": "", "check": "현물표 12 / 장비시스템 3", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "CPR 영아", "book": 8, "prev": 8, "spec": "", "check": "두 시스템 모두 미등록", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "영아기도폐쇄마네킨", "book": 14, "prev": 15, "spec": "파라과이 지원", "check": "두 시스템에서 파라과이 1점 처리 여부 확인 / 지원 일자 기재", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "성인 상처표시 마네킨", "book": 1, "prev": 1, "spec": "", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "소아 외상마네킨", "book": 1, "prev": 1, "spec": "", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "기도삽관평가용(성인)", "book": 5, "prev": 5, "spec": "", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "기관내삽관마네킨", "book": 15, "prev": 25, "spec": "’25.6.24. 불용", "check": "현물표 23(성인 3·소아 10·영아 10) / 장비시스템 성인 10 불용 미처리·소아 10 미등록", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "정맥주사실습용마네킨", "book": 10, "prev": 5, "spec": "’25.11.·’26.6. 보강", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "12리드 심전도마네킨", "book": 5, "prev": 5, "spec": "", "check": "현물표에 없음 → 실물 확인(두 시스템 5점)", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "인명구조마네킨", "book": 3, "prev": 3, "spec": "1개 대여(훈련팀)", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "골강주사마네킨", "book": 5, "prev": 5, "spec": "", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "혈압맥박평가용 마네킨", "book": 5, "prev": 5, "spec": "", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "분만시뮬레이터", "book": 1, "prev": 1, "spec": "SimMom", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기교육 마네킨", "name": "분만마네킨(반신)", "book": 2, "prev": 0, "spec": "목록 누락분 추가", "check": "", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기 교육장비", "name": "교육용심장충격기", "book": 25, "prev": 25, "spec": "", "check": "장비시스템 31", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기 교육장비", "name": "가슴압박품질측정기", "book": 10, "prev": 10, "spec": "", "check": "현물표에 없음 → 실물 확인(두 시스템 10점)", "loc": ""},
+  {"group": "전문구급 실습장비", "func": "전문술기 교육장비", "name": "기도폐쇄 실습용조끼", "book": 5, "prev": 6, "spec": "파라과이 지원", "check": "두 시스템(6점)에서 파라과이 1점 처리 여부 확인 / 지원 일자 기재", "loc": ""},
+  {"group": "교육실습 장비", "func": "재난대응", "name": "재난대응 응급의료 운영 도상훈련 키트", "book": 4, "prev": 2, "spec": "’26.6. 보강", "check": "장비시스템에 ’21년분 2점 미등록", "loc": ""},
+  {"group": "전문 의료장비", "func": "기도확보", "name": "비디오 후두경", "book": 8, "prev": 6, "spec": "’26.6. 보강", "check": "", "loc": ""},
+  {"group": "전문 의료장비", "func": "호흡유지", "name": "인공호흡기(벤틸레이터)", "book": 5, "prev": 5, "spec": "", "check": "", "loc": ""},
+  {"group": "전문 의료장비", "func": "순환유지", "name": "기계식 가슴압박장비", "book": 11, "prev": 9, "spec": "’26.6. 보강", "check": "현물표 7+2=9 / 물품대장 9 / 장비시스템 7 → 11점 맞는지 확인", "loc": ""},
+  {"group": "전문 의료장비", "func": "외상처치", "name": "견인부목(성인)", "book": 15, "prev": 16, "spec": "’26.4.·’26.6. 보강 / ’25.6.24. 불용", "check": "두 시스템 불용 8 미처리(’17 Dynamed 6점 남음)", "loc": ""},
+  {"group": "전문 의료장비", "func": "외상처치", "name": "견인부목(소아)", "book": 7, "prev": 6, "spec": "’26.6. 보강", "check": "현물표 10", "loc": ""},
+  {"group": "전문 의료장비", "func": "환자이송", "name": "계단이송용 들것", "book": 6, "prev": 5, "spec": "’26.6. 보강", "check": "", "loc": ""},
+  {"group": "전문 의료장비", "func": "검사장비", "name": "메트로놈", "book": 5, "prev": 5, "spec": "", "check": "현물표에 없음 / 장비시스템 2점", "loc": ""},
+  {"group": "전문 의료장비", "func": "검사장비", "name": "혈관검출기", "book": 2, "prev": 2, "spec": "", "check": "", "loc": ""},
+  {"group": "전문 의료장비", "func": "검사장비", "name": "일산화탄소 및 메트헤모글로빈 측정장비", "book": 3, "prev": 1, "spec": "’26.6. 보강", "check": "", "loc": ""},
+  {"group": "전문 의료장비", "func": "검사장비", "name": "호기말이산화탄소측정기", "book": 1, "prev": 1, "spec": "", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "기도확보 유지", "name": "후두경세트", "book": 2, "prev": 2, "spec": "", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "호흡유지", "name": "백밸브마스크(성인)", "book": 13, "prev": 13, "spec": "", "check": "현물표에 없음(소모품)", "loc": ""},
+  {"group": "의료장비", "func": "호흡유지", "name": "백밸브마스크(소아)", "book": 5, "prev": 5, "spec": "", "check": "현물표에 없음(소모품)", "loc": ""},
+  {"group": "의료장비", "func": "호흡유지", "name": "백밸브마스크(영아)", "book": 8, "prev": 8, "spec": "", "check": "현물표에 없음(소모품)", "loc": ""},
+  {"group": "의료장비", "func": "호흡유지", "name": "자동식산소소생기", "book": 10, "prev": 10, "spec": "", "check": "현물표·두 시스템 5점 → 10점 맞는지 확인", "loc": ""},
+  {"group": "의료장비", "func": "호흡유지", "name": "충전식흡인기", "book": 11, "prev": 10, "spec": "’26.6. 보강", "check": "현물표 10 / 장비시스템 6", "loc": ""},
+  {"group": "의료장비", "func": "호흡유지", "name": "네블라이저", "book": 1, "prev": 1, "spec": "", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "순환유지", "name": "고급형 심장충격기", "book": 5, "prev": 5, "spec": "필립스 1·Zoll 3·Corpuls 1", "check": "필립스 1 장비시스템 미등록", "loc": ""},
+  {"group": "의료장비", "func": "순환유지", "name": "CPR 보드", "book": 6, "prev": 6, "spec": "", "check": "현물표·두 시스템 모두 없음 → 실물 확인", "loc": ""},
+  {"group": "의료장비", "func": "외상처치", "name": "긴척추고정판", "book": 4, "prev": 1, "spec": "’26.4. 보강", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "외상처치", "name": "머리고정대", "book": 4, "prev": 0, "spec": "목록 누락분 추가", "check": "장비시스템 미등록(물품대장 1)", "loc": ""},
+  {"group": "의료장비", "func": "외상처치", "name": "구출고정장치(KED)", "book": 3, "prev": 3, "spec": "", "check": "현물표 4 / 장비시스템 4", "loc": ""},
+  {"group": "의료장비", "func": "외상처치", "name": "패드부목", "book": 7, "prev": 7, "spec": "", "check": "현물표 6", "loc": ""},
+  {"group": "의료장비", "func": "외상처치", "name": "진공부목", "book": 13, "prev": 13, "spec": "세트 3, 팔 5", "check": "현물표 8(세트 3·팔 5)", "loc": ""},
+  {"group": "의료장비", "func": "외상처치", "name": "골반고정기", "book": 2, "prev": 0, "spec": "’26.6. 보강", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "외상처치", "name": "기초인명소생용 가방", "book": 8, "prev": 4, "spec": "’26.6. 보강", "check": "현물표 3 → ’26.6. J-400 4점 포함 8점 맞는지 확인", "loc": ""},
+  {"group": "의료장비", "func": "환자이송", "name": "주들것", "book": 3, "prev": 3, "spec": "", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "환자이송", "name": "분리형 들것", "book": 9, "prev": 4, "spec": "’25.6.·’26.4. 보강", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "환자이송", "name": "가변형 들것", "book": 4, "prev": 2, "spec": "’26.6. 보강", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "환자이송", "name": "이동식 배드", "book": 1, "prev": 1, "spec": "", "check": "두 시스템 미등록", "loc": ""},
+  {"group": "의료장비", "func": "검사장비", "name": "혈압계", "book": 13, "prev": 13, "spec": "", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "검사장비", "name": "체온계", "book": 15, "prev": 15, "spec": "", "check": "현물표·장비시스템 13 → 15점 맞는지 확인", "loc": ""},
+  {"group": "의료장비", "func": "검사장비", "name": "청진기", "book": 15, "prev": 15, "spec": "", "check": "", "loc": ""},
+  {"group": "의료장비", "func": "검사장비", "name": "휴대용산소포화도 측정기", "book": 14, "prev": 14, "spec": "", "check": "장비시스템 6", "loc": ""},
+  {"group": "의료장비", "func": "검사장비", "name": "다기능조끼(방검)", "book": 3, "prev": 0, "spec": "’24.12.16. 보강분 누락 추가", "check": "현물표에 없음 → 실물 확인", "loc": ""},
+  {"group": "환자분류 장비", "func": "재난대응", "name": "다수사상자 현장대응키트", "book": 4, "prev": 2, "spec": "’26.6. 보강", "check": "", "loc": ""},
+  {"group": "이동장비", "func": "감염방지", "name": "음압형 환자이송장비", "book": 1, "prev": 1, "spec": "", "check": "두 시스템 미등록(’23.4. 구입)", "loc": ""},
+  {"group": "이동장비", "func": "감염방지", "name": "건열·멸균 살균기", "book": 1, "prev": 0, "spec": "목록 누락분 추가", "check": "두 시스템 미등록", "loc": ""},
+];
+
+/* 유효기간 경고: 오늘부터 며칠 안이면 '임박' */
+const WARN_DAYS = 90;
+const STORE_KEY = "ems-survey-2026";
+
+/* ---------- 저장 ---------- */
+function blankRecord() { return { actual: "", status: "", expiry: "", loc: "", memo: "", done: false }; }
+let records = load();
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+    return EQUIPMENT.map((e, i) => Object.assign(blankRecord(), { loc: e.loc }, saved[keyOf(e, i)] || {}));
+  } catch (err) { return EQUIPMENT.map(e => Object.assign(blankRecord(), { loc: e.loc })); }
+}
+function save() {
+  const obj = {};
+  EQUIPMENT.forEach((e, i) => obj[keyOf(e, i)] = records[i]);
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(obj)); } catch (err) {}
+}
+function keyOf(e, i) { return i + "|" + e.name; }
+
+/* ---------- 판정 ---------- */
+function mismatch(i) { const r = records[i]; return r.actual !== "" && Number(r.actual) !== EQUIPMENT[i].book; }
+function expiryState(i) {
+  const d = records[i].expiry; if (!d) return "";
+  const days = Math.floor((new Date(d + "T00:00:00") - new Date(new Date().toDateString())) / 86400000);
+  if (days < 0) return "만료";
+  if (days <= WARN_DAYS) return "임박";
+  return "";
+}
+
+/* ---------- 필터 ---------- */
+const FILTERS = [
+  ["전체",        () => true],
+  ["미확인",      i => !records[i].done],
+  ["수량 불일치", i => mismatch(i)],
+  ["고장·폐기",   i => records[i].status === "고장" || records[i].status === "폐기"],
+  ["유효기간",    i => expiryState(i) !== ""],
+  ["확인 필요",   i => !!EQUIPMENT[i].check],
+  ["증감 장비",   i => EQUIPMENT[i].prev !== EQUIPMENT[i].book || /보강|불용|지원|누락/.test(EQUIPMENT[i].spec)],
+];
+let currentFilter = 0;
+
+function renderFilters() {
+  const nav = document.getElementById("filters");
+  nav.innerHTML = "";
+  FILTERS.forEach(([label, fn], k) => {
+    const n = EQUIPMENT.filter((_, i) => fn(i)).length;
+    const b = document.createElement("button");
+    b.className = k === currentFilter ? "on" : "";
+    b.innerHTML = `${label} <span class="n">${n}</span>`;
+    b.onclick = () => { currentFilter = k; render(); };
+    nav.appendChild(b);
+  });
+}
+
+function renderProgress() {
+  const done = records.filter(r => r.done).length;
+  document.getElementById("progressText").textContent = `${done} / ${EQUIPMENT.length} 종 완료`;
+  document.getElementById("progressBar").style.width = (done / EQUIPMENT.length * 100) + "%";
+}
+
+/* ---------- 카드 ---------- */
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function cardHTML(i) {
+  const e = EQUIPMENT[i], r = records[i];
+  const badges = [];
+  if (mismatch(i)) badges.push(`<span class="badge b-red">수량 불일치 (${r.actual - e.book > 0 ? "+" : ""}${r.actual - e.book})</span>`);
+  if (r.status === "고장") badges.push(`<span class="badge b-amber">고장</span>`);
+  if (r.status === "폐기") badges.push(`<span class="badge b-red">폐기</span>`);
+  const ex = expiryState(i);
+  if (ex === "만료") badges.push(`<span class="badge b-red">유효기간 만료</span>`);
+  if (ex === "임박") badges.push(`<span class="badge b-amber">유효기간 임박</span>`);
+  if (r.done && !badges.length) badges.push(`<span class="badge b-green">이상 없음</span>`);
+  const seg = ["정상", "고장", "폐기"].map(v =>
+    `<button data-act="status" data-v="${v}" class="${r.status === v ? "on" : ""}">${v}</button>`).join("");
+  return `
+    <div class="card-top">
+      <div>
+        <div class="func">${i + 1}. ${esc(e.func || "")}</div>
+        <div class="name">${esc(e.name)}</div>
+        ${e.spec ? `<div class="spec">${esc(e.spec)}</div>` : ""}
+        <div class="badges">${badges.join("")}</div>
+      </div>
+      <button class="check" data-act="done">${r.done ? "✔ 완료" : "확인"}</button>
+    </div>
+    ${e.check ? `<div class="note">확인 필요: ${esc(e.check)}</div>` : ""}
+    <div class="row">
+      <span class="label">실물 수량</span>
+      <div class="qty">
+        <button data-act="minus" aria-label="빼기">−</button>
+        <input type="number" inputmode="numeric" min="0" data-act="actual" value="${esc(r.actual)}"
+               placeholder="${e.book}" class="${mismatch(i) ? "mismatch" : ""}">
+        <button data-act="plus" aria-label="더하기">+</button>
+      </div>
+      <span class="book">장부 ${e.book}${e.prev !== e.book ? ` (’24 ${e.prev})` : ""}</span>
+    </div>
+    <div class="row"><span class="label">상태</span><div class="seg">${seg}</div></div>
+    <div class="row"><span class="label">유효기간</span><input type="date" data-act="expiry" value="${esc(r.expiry)}"></div>
+    <div class="row"><span class="label">보관 위치</span><input class="text" data-act="loc" value="${esc(r.loc)}"></div>
+    <div class="row"><span class="label">메모</span><input class="text" data-act="memo" value="${esc(r.memo)}" placeholder="특이사항"></div>`;
+}
+
+function render() {
+  renderProgress();
+  renderFilters();
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  const fn = FILTERS[currentFilter][1];
+  const shown = EQUIPMENT.map((_, i) => i).filter(i => fn(i));
+  if (!shown.length) { list.innerHTML = `<div class="empty">해당하는 품목이 없습니다.</div>`; return; }
+  let lastGroup = null;
+  shown.forEach(i => {
+    if (EQUIPMENT[i].group !== lastGroup) {
+      lastGroup = EQUIPMENT[i].group;
+      const h = document.createElement("div"); h.className = "group-h"; h.textContent = lastGroup;
+      list.appendChild(h);
+    }
+    const card = document.createElement("section");
+    card.className = "card" + (records[i].done ? " done" : "");
+    card.dataset.i = i;
+    card.innerHTML = cardHTML(i);
+    list.appendChild(card);
+  });
+}
+
+/* 카드 하나만 다시 그리기 (입력 중 화면이 튀지 않게) */
+function refreshCard(i, keepFocus) {
+  const card = document.querySelector(`.card[data-i="${i}"]`);
+  if (!card) return;
+  if (keepFocus) {
+    // 입력칸은 그대로 두고 배지·테두리만 갱신
+    card.className = "card" + (records[i].done ? " done" : "");
+    const tmp = document.createElement("div"); tmp.innerHTML = cardHTML(i);
+    card.querySelector(".badges").innerHTML = tmp.querySelector(".badges").innerHTML;
+    card.querySelector('[data-act="actual"]').classList.toggle("mismatch", mismatch(i));
+  } else {
+    card.className = "card" + (records[i].done ? " done" : "");
+    card.innerHTML = cardHTML(i);
+  }
+  renderProgress();
+  renderFilters();
+}
+
+/* ---------- 입력 처리 ---------- */
+const list = document.getElementById("list");
+list.addEventListener("click", ev => {
+  const btn = ev.target.closest("button[data-act]"); if (!btn) return;
+  const i = Number(btn.closest(".card").dataset.i), r = records[i], e = EQUIPMENT[i];
+  const act = btn.dataset.act;
+  if (act === "plus")  r.actual = (r.actual === "" ? e.book : Number(r.actual)) + 1;
+  if (act === "minus") r.actual = Math.max(0, (r.actual === "" ? e.book : Number(r.actual)) - 1);
+  if (act === "status") r.status = r.status === btn.dataset.v ? "" : btn.dataset.v;
+  if (act === "done") {
+    r.done = !r.done;
+    if (r.done) {               // 빠른 확인: 비어 있으면 장부 수량·정상으로 채움
+      if (r.actual === "") r.actual = e.book;
+      if (r.status === "") r.status = "정상";
+    }
+  }
+  save(); refreshCard(i, false);
+});
+list.addEventListener("input", ev => {
+  const el = ev.target; const act = el.dataset.act; if (!act) return;
+  const i = Number(el.closest(".card").dataset.i);
+  records[i][act] = act === "actual" ? (el.value === "" ? "" : Math.max(0, Number(el.value))) : el.value;
+  save(); refreshCard(i, true);
+});
+
+/* ---------- 내보내기 ---------- */
+const HEAD = ["연번", "용도별", "기능별", "품명", "비고", "장부수량", "실물수량", "증감", "상태", "유효기간", "보관위치", "메모", "확인"];
+function rows() {
+  return EQUIPMENT.map((e, i) => {
+    const r = records[i];
+    const diff = r.actual === "" ? "" : Number(r.actual) - e.book;
+    const ex = expiryState(i);
+    return [i + 1, e.group, e.func, e.name, e.spec, e.book, r.actual, diff === 0 ? "" : diff, r.status,
+            r.expiry + (ex ? ` (${ex})` : ""), r.loc, r.memo, r.done ? "O" : ""];
+  });
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.timer); toast.timer = setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+document.getElementById("copyBtn").onclick = async () => {
+  const data = rows();
+  const tsv = [HEAD, ...data].map(r => r.map(c => String(c).replace(/[\t\n]/g, " ")).join("\t")).join("\n");
+  const html = `<table border="1" style="border-collapse:collapse"><tr>${HEAD.map(h => `<th>${esc(h)}</th>`).join("")}</tr>` +
+    data.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("") + `</table>`;
+  try {
+    if (window.ClipboardItem && navigator.clipboard.write) {
+      await navigator.clipboard.write([new ClipboardItem({
+        "text/html": new Blob([html], { type: "text/html" }),
+        "text/plain": new Blob([tsv], { type: "text/plain" }),
+      })]);
+    } else {
+      await navigator.clipboard.writeText(tsv);
+    }
+    toast("표를 복사했습니다. 한글·엑셀에 붙여 넣으세요.");
+  } catch (err) {
+    const ta = document.createElement("textarea"); ta.value = tsv; document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy"); ta.remove();
+    toast("표를 복사했습니다.");
+  }
+};
+
+document.getElementById("csvBtn").onclick = () => {
+  const csv = [HEAD, ...rows()].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }); // BOM: 엑셀 한글 깨짐 방지
+  const a = document.createElement("a");
+  const d = new Date();
+  a.href = URL.createObjectURL(blob);
+  a.download = `구급장비_현물조사_${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000); // 바로 해제하면 일부 브라우저에서 다운로드 실패
+  toast("CSV 파일을 저장했습니다.");
+};
+
+document.getElementById("resetBtn").onclick = () => {
+  if (!confirm("입력한 내용을 모두 지우고 새 조사를 시작할까요?\n(먼저 표로 복사하거나 CSV로 저장해 두세요)")) return;
+  records = EQUIPMENT.map(e => Object.assign(blankRecord(), { loc: e.loc }));
+  save(); currentFilter = 0; render(); toast("초기화했습니다.");
+};
+
+/* 필터 줄을 헤더 바로 아래에 붙이기 (헤더 높이는 기기마다 다름) */
+function stickFilters() { document.getElementById("filters").style.top = document.querySelector("header").offsetHeight + "px"; }
+window.addEventListener("resize", stickFilters);
+stickFilters();
+render();
+</script>
+</body>
+</html>
